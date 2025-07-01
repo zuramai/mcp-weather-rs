@@ -42,6 +42,14 @@ Start the weather MCP server:
 cargo run
 ```
 
+### Debugging the MCP Server
+
+Start the weather MCP server with npx `@modelcontextprotocol/inspector:`
+
+```bash
+npx @modelcontextprotocol/inspector cargo run
+```
+
 The server will start and listen for MCP protocol messages via standard input/output.
 
 ### MCP Tool: get_forecast
