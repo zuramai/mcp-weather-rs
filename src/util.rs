@@ -5,6 +5,12 @@ pub fn format_forecast(response: WeatherResponse) -> String {
     if response.hourly.relative_humidity_2m.len() == 0 {
         return "No forecast weather found.".into()
     }
+    result.push_str(format!(
+        "Current temperature: {}\nCurrent wind speed: {}\nElevation: {}\nHourly forecast:\n",
+        response.current.temperature_2m,
+        response.current.wind_speed_10m,
+        response.elevation,
+    ).as_str());
     for i in 0..response.hourly.relative_humidity_2m.len() {
         result.push_str(format!(
             "Date time: {}\nTemperature: {}\nHumidity: {}\nWind Speed: {}\n",
