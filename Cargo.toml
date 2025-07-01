@@ -4,4 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-rmcp = { version = "0.1.5", features = ["server"] }
+reqwest = { version = "0.12.21", features = ["json"] }
+rmcp = { git = "https://github.com/modelcontextprotocol/rust-sdk", branch = "main", features = ["server", "transport-io"] }
+schemars = "1.0.3"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+tokio = { version = "1.45.1", features = ["io-std", "rt-multi-thread"] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
