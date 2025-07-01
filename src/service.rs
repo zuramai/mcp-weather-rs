@@ -1,7 +1,6 @@
-use rmcp::{handler::server::tool::{Parameters, ToolRouter}, model::{CallToolResult, Content, ServerCapabilities, ServerInfo}, tool, tool_handler, ServerHandler};
-use rmcp::tool_router;
+use rmcp::{handler::server::{tool::{Parameters, ToolRouter}}, model::{CallToolResult, Content, ServerCapabilities, ServerInfo}, tool, tool_handler, tool_router, ServerHandler};
 
-use crate::{error::McpError, model::{self, PointRequest, WeatherResponse}, util};
+use crate::{model::{self, PointRequest, WeatherResponse}, util};
 
 #[derive(Clone)]
 pub struct WeatherService {
@@ -25,17 +24,21 @@ impl WeatherService {
     pub async fn get_forecast(
         &self, 
         Parameters(PointRequest { latitude, longitude }): Parameters<PointRequest> 
-    ) -> String {
+    ) -> Result<CallToolResult, rmcp::Error> {
         match self.make_request(PointRequest {
             latitude,
             longitude
         }).await {
             Ok(v) => {
-                util::format_forecast(v)
+                Ok(CallToolResult::success(vec![
+                    Content::text(util::format_forecast(v))
+                ]))
             },
             Err(e) => {
                 tracing::error!("Failed to fetch forecast: {}", e);
-                "No forecast found or an error occured".into()
+                Ok(CallToolResult::error(vec![
+                    Content::text("No forecast found or an error occured".to_string())
+                ]))
             }
         }
     }
@@ -48,7 +51,7 @@ impl WeatherService {
         
         let response = self.client.get(&url).send().await?;
         let weather_data = response.json::<WeatherResponse>().await?;
-        
+
         Ok(weather_data)
     }
 }
