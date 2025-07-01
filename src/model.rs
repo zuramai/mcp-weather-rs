@@ -5,10 +5,10 @@ use serde::Deserialize;
 pub struct WeatherResponse {
     pub latitude: f32,
     pub longitude: f32,   
-    pub generationtime_ms: i32,   
-    pub utc_offset_seconds: String,   
+    pub generationtime_ms: f32,   
+    pub utc_offset_seconds: i32,   
     pub timezone: String,   
-    pub timezone_abbreviation: f32,   
+    pub timezone_abbreviation: String,   
     pub elevation: f32,   
     pub current_units: CurrentUnit, 
     pub current: Current, 
@@ -20,7 +20,7 @@ pub struct WeatherResponse {
 pub struct CurrentUnit {
     pub time: String,
     pub interval: String,
-    pub temperature: String,
+    pub temperature_2m: String,
     pub wind_speed_10m: String,
 }
 
@@ -28,7 +28,7 @@ pub struct CurrentUnit {
 pub struct Current {
     pub time: String,
     pub interval: i32,
-    pub temperature: f32,
+    pub temperature_2m: f32,
     pub wind_speed_10m: f32,
 }
 
