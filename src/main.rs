@@ -1,10 +1,13 @@
-use rmcp::{transport::stdio, ServiceExt};
+use rmcp::{transport::SseServer, ServiceExt};
 use tracing_subscriber::EnvFilter;
 
 mod service;
 mod model;
 mod util;
 mod error;
+
+const BIND_ADDRESS: &str = "127.0.0.1:8000";
+
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt()
@@ -14,9 +17,10 @@ async fn main() {
         .init();
     tracing::info!("Starting MCP server");
 
-    let service = service::WeatherService::new().serve(stdio()).await.inspect_err(|e| {
-        tracing::error!("Failed to serve MCP server: {:?}", e)
-    }).unwrap();
+    let ct = SseServer::serve(BIND_ADDRESS.parse().unwrap())
+        .await.unwrap()
+        .with_service_directly(service::WeatherService::new);
 
-    service.waiting().await.unwrap();
+    tokio::signal::ctrl_c().await.unwrap();
+    ct.cancel();
 }
