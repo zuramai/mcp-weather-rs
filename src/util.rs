@@ -2,7 +2,7 @@ use crate::model::WeatherResponse;
 
 pub fn format_forecast(response: WeatherResponse) -> String {
     let mut result = String::new();
-    if response.hourly.relative_humidity_2m.len() == 0 {
+    if response.hourly.relative_humidity_2m.is_empty() {
         return "No forecast weather found.".into()
     }
     result.push_str(format!(

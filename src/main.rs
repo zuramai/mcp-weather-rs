@@ -1,4 +1,4 @@
-use rmcp::{transport::SseServer, ServiceExt};
+use rmcp::{transport::{streamable_http_server::session::local::LocalSessionManager, StreamableHttpService}};
 use tracing_subscriber::EnvFilter;
 
 mod service;
@@ -6,7 +6,7 @@ mod model;
 mod util;
 mod error;
 
-const BIND_ADDRESS: &str = "127.0.0.1:8000";
+const BIND_ADDRESS: &str = "127.0.0.1:8005";
 
 #[tokio::main]
 async fn main() {
@@ -17,10 +17,13 @@ async fn main() {
         .init();
     tracing::info!("Starting MCP server");
 
-    let ct = SseServer::serve(BIND_ADDRESS.parse().unwrap())
-        .await.unwrap()
-        .with_service_directly(service::WeatherService::new);
+    let service = StreamableHttpService::new(|| Ok(service::WeatherService::new()), LocalSessionManager::default().into(), Default::default());
 
-    tokio::signal::ctrl_c().await.unwrap();
-    ct.cancel();
+    let router = axum::Router::new().nest_service("/mcp", service);
+    let tcp_listener = tokio::net::TcpListener::bind(BIND_ADDRESS).await.unwrap();
+    let _ = axum::serve(tcp_listener, router)
+        .with_graceful_shutdown(async {
+            tokio::signal::ctrl_c().await.unwrap();
+        })
+        .await;
 }
